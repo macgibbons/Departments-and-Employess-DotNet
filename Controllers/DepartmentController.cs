@@ -59,69 +59,72 @@ namespace DepartmentEmployeesDotNet.Controllers
             }
         }
 
+
+        [HttpGet("{id}", Name = "GetDepartment")]
+        public async Task<IActionResult> Get([FromRoute] int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT
+                            Id, DeptName
+                        FROM Department
+                        WHERE Id = @id";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    Department department = null;
+
+                    if (reader.Read())
+                    {
+                        department = new Department
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            DeptName = reader.GetString(reader.GetOrdinal("DeptName")),
+                        };
+                        reader.Close();
+
+                        return Ok(department);
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+            }
+        }
     }
+
+
 }
 
 
 
 
-   
 
-    //    // Get a single coffee from Id
-    //    [HttpGet("{id}", Name = "GetCoffee")]
-    //    public async Task<IActionResult> Get([FromRoute] int id)
-    //    {
-    //        using (SqlConnection conn = Connection)
-    //        {
-    //            conn.Open();
-    //            using (SqlCommand cmd = conn.CreateCommand())
-    //            {
-    //                cmd.CommandText = @"
-    //                    SELECT
-    //                        Id, Title, BeanType
-    //                    FROM Coffee
-    //                    WHERE Id = @id";
-    //                cmd.Parameters.Add(new SqlParameter("@id", id));
-    //                SqlDataReader reader = cmd.ExecuteReader();
 
-    //                Coffee coffee = null;
+// Get a single coffee from Id
 
-    //                if (reader.Read())
-    //                {
-    //                    coffee = new Coffee
-    //                    {
-    //                        Id = reader.GetInt32(reader.GetOrdinal("Id")),
-    //                        Title = reader.GetString(reader.GetOrdinal("Title")),
-    //                        BeanType = reader.GetString(reader.GetOrdinal("BeanType"))
-    //                    };
-    //                    reader.Close();
 
-    //                    return Ok(coffee);
-    //                }
-    //                else
-    //                {
-    //                    return NotFound();
-    //                }
-    //            }
-    //        }
-    //    }
+//    private bool CoffeeExists(int id)
+//    {
+//        using (SqlConnection conn = Connection)
+//        {
+//            conn.Open();
+//            using (SqlCommand cmd = conn.CreateCommand())
+//            {
+//                cmd.CommandText = @"
+//                    SELECT Id, Title, BeanType
+//                    FROM Coffee
+//                    WHERE Id = @id";
+//                cmd.Parameters.Add(new SqlParameter("@id", id));
 
-    //    private bool CoffeeExists(int id)
-    //    {
-    //        using (SqlConnection conn = Connection)
-    //        {
-    //            conn.Open();
-    //            using (SqlCommand cmd = conn.CreateCommand())
-    //            {
-    //                cmd.CommandText = @"
-    //                    SELECT Id, Title, BeanType
-    //                    FROM Coffee
-    //                    WHERE Id = @id";
-    //                cmd.Parameters.Add(new SqlParameter("@id", id));
-
-    //                SqlDataReader reader = cmd.ExecuteReader();
-    //                return reader.Read();
-    //            }
-    //        }
-    //    }
-    //}
+//                SqlDataReader reader = cmd.ExecuteReader();
+//                return reader.Read();
+//            }
+//        }
+//    }
+//}
