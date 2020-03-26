@@ -29,7 +29,7 @@ namespace DepartmentEmployeesDotNet.Controllers
             }
         }
 
-        // Get all Departments from the database
+        // ----------GET ALL----------
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -59,7 +59,7 @@ namespace DepartmentEmployeesDotNet.Controllers
             }
         }
 
-
+        //----------GET BY ID----------
         [HttpGet("{id}", Name = "GetDepartment")]
         public async Task<IActionResult> Get([FromRoute] int id)
         {
@@ -97,6 +97,7 @@ namespace DepartmentEmployeesDotNet.Controllers
             }
         }
 
+        //----------POST----------
         public async Task<IActionResult> Post([FromBody] Department department)
         {
             using (SqlConnection conn = Connection)
@@ -113,35 +114,69 @@ namespace DepartmentEmployeesDotNet.Controllers
                 }
             }
         }
+        //----------PUT----------
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] Department department)
+        {
+            try
+            {
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"UPDATE Department
+                                     SET DeptName = @deptName
+                                     WHERE Id = @id";
+                        cmd.Parameters.Add(new SqlParameter("@deptName", department.DeptName));
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        if (rowsAffected > 0)
+                        {
+                            return new StatusCodeResult(StatusCodes.Status204NoContent);
+                        }
+                        throw new Exception("No rows affected");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                if (!DepartmentExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        private bool DepartmentExists(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT Id, DeptName
+                        FROM Department
+                        WHERE Id = @id";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    return reader.Read();
+                }
+            }
+        }
+
     }
-
-
 }
 
 
 
 
 
-
-// Get a single coffee from Id
-
-
-//    private bool CoffeeExists(int id)
-//    {
-//        using (SqlConnection conn = Connection)
-//        {
-//            conn.Open();
-//            using (SqlCommand cmd = conn.CreateCommand())
-//            {
-//                cmd.CommandText = @"
-//                    SELECT Id, Title, BeanType
-//                    FROM Coffee
-//                    WHERE Id = @id";
-//                cmd.Parameters.Add(new SqlParameter("@id", id));
-
-//                SqlDataReader reader = cmd.ExecuteReader();
-//                return reader.Read();
-//            }
-//        }
-//    }
-//}
