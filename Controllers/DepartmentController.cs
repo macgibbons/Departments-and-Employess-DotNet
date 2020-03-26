@@ -98,6 +98,7 @@ namespace DepartmentEmployeesDotNet.Controllers
         }
 
         //----------POST----------
+        [HttpPost]
         public async Task<IActionResult> Post([FromBody] Department department)
         {
             using (SqlConnection conn = Connection)
