@@ -96,6 +96,23 @@ namespace DepartmentEmployeesDotNet.Controllers
                 }
             }
         }
+
+        public async Task<IActionResult> Post([FromBody] Department department)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "INSERT INTO Department (DeptName) OUTPUT INSERTED.Id Values (@deptName)";
+                    cmd.Parameters.Add(new SqlParameter("@deptName", department.DeptName));
+                    int id = (int)cmd.ExecuteScalar();
+
+                    department.Id = id;
+                    return CreatedAtRoute("GetDepartment", new { id = id }, department);
+                }
+            }
+        }
     }
 
 
